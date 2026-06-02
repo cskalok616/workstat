@@ -1,0 +1,24 @@
+{
+  "name": "每日工作量統計表",
+  "short_name": "工作量統計",
+  "description": "每日工作量與收入統計工具，可安裝到主畫面使用。",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f6f1e8",
+  "theme_color": "#cb7c41",
+  "lang": "zh-Hant",
+  "icons": [
+    {
+      "src": "./icons/app-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "./icons/app-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

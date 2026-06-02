@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>每日工作量統計表</title>
+  <meta name="description" content="每日工作量與收入統計工具，可安裝到主畫面使用。">
+  <meta name="theme-color" content="#cb7c41">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="工作量統計表">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="apple-touch-icon" href="./icons/app-icon-180.png">
+  <style>
+    :root {
+      --bg: #f6f1e8;
+      --panel: rgba(255, 250, 241, 0.9);
+      --panel-strong: #fffdf8;
+      --line: #d7c8b0;
+      --text: #2f2419;
+      --muted: #786553;
+      --accent: #cb7c41;
+      --accent-soft: rgba(203, 124, 65, 0.14);
+      --shadow: 0 18px 40px rgba(74, 49, 24, 0.12);
+      --radius: 22px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "PingFang TC", "Noto Serif TC", serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(255, 255, 255, 0.9), transparent 36%),
+        linear-gradient(160deg, #efe3d0 0%, #f8f4ec 52%, #f1e5d5 100%);
+      padding: 40px 20px;
+    }
+
+    .sheet {
+      max-width: 1180px;
+      margin: 0 auto;
+      background: var(--panel);
+      border: 1px solid rgba(154, 120, 83, 0.18);
+      border-radius: 30px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      backdrop-filter: blur(10px);
+    }
+
+    .hero {
+      padding: 28px;
+      background:
+        linear-gradient(135deg, rgba(203, 124, 65, 0.18), rgba(255, 255, 255, 0.5)),
+        linear-gradient(180deg, #fff9ef, #f6ebdb);
+      border-bottom: 1px solid rgba(154, 120, 83, 0.15);
+    }
+
+    .title-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: flex-start;
+      margin-bottom: 22px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(30px, 4vw, 42px);
+      letter-spacing: 0.04em;
+      font-weight: 700;
+    }
+
+    .subtitle {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .badge {
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(255, 253, 248, 0.85);
+      border: 1px solid rgba(154, 120, 83, 0.18);
+      color: var(--muted);
+      white-space: nowrap;
+      font-size: 14px;
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .summary-card {
+      padding: 22px;
+      background: var(--panel-strong);
+      border-radius: var(--radius);
+      border: 1px solid rgba(154, 120, 83, 0.14);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
+    }
+
+    .summary-label {
+      color: var(--muted);
+      font-size: 15px;
+      margin-bottom: 10px;
+    }
+
+    .summary-value {
+      font-size: clamp(34px, 5vw, 52px);
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .summary-unit {
+      font-size: 18px;
+      margin-left: 6px;
+      color: var(--muted);
+    }
+
+    .content {
+      padding: 28px;
+      display: grid;
+      gap: 24px;
+    }
+
+    .daily-entry {
+      display: grid;
+      grid-template-columns: minmax(240px, 340px) minmax(0, 1fr);
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .date-card,
+    .input-card,
+    .calendar-card {
+      background: var(--panel-strong);
+      border: 1px solid rgba(154, 120, 83, 0.14);
+      border-radius: var(--radius);
+    }
+
+    .date-card,
+    .input-card {
+      padding: 22px;
+    }
+
+    .card-label {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    .date-value {
+      font-size: clamp(28px, 3.5vw, 40px);
+      font-weight: 700;
+      letter-spacing: 0.03em;
+    }
+
+    .date-note {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .entry-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .entry-buttons {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .entry-button {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      font-size: 28px;
+      padding: 16px 0;
+      color: var(--text);
+      background: #fffdf9;
+      outline: none;
+      cursor: pointer;
+      transition: transform 120ms ease, border-color 120ms ease, box-shadow 120ms ease, background 120ms ease;
+    }
+
+    .entry-button:hover {
+      border-color: var(--accent);
+      transform: translateY(-1px);
+    }
+
+    .entry-button:focus-visible {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(203, 124, 65, 0.12);
+    }
+
+    .entry-button.is-active {
+      background: linear-gradient(180deg, rgba(203, 124, 65, 0.22), rgba(255, 253, 249, 0.96));
+      border-color: var(--accent);
+      box-shadow: 0 10px 20px rgba(203, 124, 65, 0.14);
+    }
+
+    .entry-unit {
+      font-size: 18px;
+      color: var(--muted);
+    }
+
+    .calendar-card {
+      overflow: hidden;
+      padding: 18px;
+      background:
+        linear-gradient(180deg, rgba(255, 249, 239, 0.96), rgba(255, 255, 255, 0.92));
+    }
+
+    .calendar-head {
+      display: grid;
+      gap: 18px;
+      padding: 6px 6px 16px;
+    }
+
+    .calendar-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .calendar-heading {
+      display: grid;
+      justify-items: center;
+      gap: 6px;
+      text-align: center;
+    }
+
+    .calendar-nav-button {
+      width: 46px;
+      height: 46px;
+      border: 1px solid rgba(154, 120, 83, 0.18);
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.82);
+      color: var(--text);
+      font-size: 28px;
+      line-height: 1;
+      cursor: pointer;
+      transition: transform 120ms ease, box-shadow 120ms ease, border-color 120ms ease;
+    }
+
+    .calendar-nav-button:hover {
+      border-color: var(--accent);
+      box-shadow: 0 8px 18px rgba(203, 124, 65, 0.12);
+      transform: translateY(-1px);
+    }
+
+    .calendar-nav-button:focus-visible {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(203, 124, 65, 0.12);
+      outline: none;
+    }
+
+    .calendar-title {
+      font-size: clamp(24px, 3vw, 34px);
+      font-weight: 700;
+      letter-spacing: 0.03em;
+    }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .calendar-weekdays {
+      margin-bottom: 8px;
+    }
+
+    .calendar-days {
+      align-items: stretch;
+    }
+
+    .weekday {
+      padding: 8px 0;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+    }
+
+    .day-cell {
+      min-height: 108px;
+      padding: 10px;
+      display: grid;
+      align-content: space-between;
+      gap: 10px;
+      background: rgba(255, 255, 255, 0.88);
+      border: 1px solid rgba(154, 120, 83, 0.12);
+      border-radius: 22px;
+      cursor: pointer;
+      transition: box-shadow 120ms ease, transform 120ms ease, background 120ms ease;
+    }
+
+    .day-cell.empty {
+      background: transparent;
+      border-color: transparent;
+      cursor: default;
+    }
+
+    .day-cell.is-selected {
+      background: linear-gradient(180deg, rgba(203, 124, 65, 0.18), rgba(255, 249, 242, 0.98));
+      box-shadow: 0 10px 24px rgba(203, 124, 65, 0.16), inset 0 0 0 1px rgba(203, 124, 65, 0.28);
+      transform: translateY(-1px);
+    }
+
+    .day-cell.is-today {
+      border-color: rgba(203, 124, 65, 0.4);
+    }
+
+    .day-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .day-number {
+      width: 34px;
+      height: 34px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      font-size: 17px;
+      font-weight: 700;
+      background: rgba(203, 124, 65, 0.08);
+    }
+
+    .day-cell.is-selected .day-number {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .day-cell.is-today .day-number {
+      box-shadow: inset 0 0 0 2px rgba(203, 124, 65, 0.65);
+    }
+
+    .day-tag {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 4px rgba(203, 124, 65, 0.12);
+      flex: 0 0 auto;
+    }
+
+    .day-value {
+      min-height: 34px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 0 4px;
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--text);
+      cursor: pointer;
+    }
+
+    .editor-overlay {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 16px;
+      background: rgba(47, 36, 25, 0.24);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 160ms ease;
+      z-index: 20;
+    }
+
+    .editor-overlay.is-open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .editor-panel {
+      width: min(100%, 560px);
+      padding: 20px;
+      border-radius: 28px;
+      background: linear-gradient(180deg, #fffaf2, #fffdf9);
+      border: 1px solid rgba(154, 120, 83, 0.18);
+      box-shadow: 0 18px 40px rgba(74, 49, 24, 0.18);
+      transform: translateY(18px);
+      transition: transform 160ms ease;
+    }
+
+    .editor-overlay.is-open .editor-panel {
+      transform: translateY(0);
+    }
+
+    .editor-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .editor-title {
+      font-size: 22px;
+      font-weight: 700;
+    }
+
+    .editor-subtitle {
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .editor-close {
+      width: 40px;
+      height: 40px;
+      border: 1px solid rgba(154, 120, 83, 0.18);
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.86);
+      color: var(--text);
+      font-size: 24px;
+      cursor: pointer;
+    }
+
+    .editor-current {
+      margin: 18px 0 10px;
+      text-align: center;
+      font-size: 52px;
+      line-height: 1;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .editor-slider {
+      width: 100%;
+      margin: 8px 0 6px;
+      accent-color: var(--accent);
+    }
+
+    .editor-scale {
+      position: relative;
+      height: 18px;
+      margin: 0 8px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1;
+    }
+
+    .editor-scale span {
+      position: absolute;
+      top: 0;
+      transform: translateX(-50%);
+      text-align: center;
+      min-width: 12px;
+    }
+
+    .editor-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 18px;
+    }
+
+    .editor-action {
+      min-width: 94px;
+      border: none;
+      border-radius: 999px;
+      padding: 12px 18px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .install-card {
+      display: grid;
+      gap: 0;
+      justify-items: center;
+      padding: 10px 4px 0;
+      text-align: center;
+    }
+
+    .install-button {
+      min-width: 220px;
+      border: none;
+      border-radius: 999px;
+      padding: 14px 22px;
+      background: linear-gradient(180deg, #cb7c41, #b96c35);
+      color: #fff;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 12px 24px rgba(203, 124, 65, 0.22);
+      transition: transform 120ms ease, opacity 120ms ease;
+    }
+
+    .install-button:hover:not(:disabled) {
+      transform: translateY(-1px);
+    }
+
+    .install-button:disabled {
+      cursor: default;
+      opacity: 0.55;
+      box-shadow: none;
+    }
+
+    @media (max-width: 860px) {
+      .summary,
+      .daily-entry {
+        grid-template-columns: 1fr;
+      }
+
+      .title-row {
+        flex-direction: column;
+      }
+
+      .day-cell {
+        min-height: 96px;
+        padding: 12px;
+      }
+    }
+
+    @media (max-width: 620px) {
+      body {
+        padding: 18px 12px;
+      }
+
+      .hero,
+      .content {
+        padding: 18px;
+      }
+
+      .calendar-grid {
+        font-size: 12px;
+        gap: 6px;
+      }
+
+      .weekday {
+        padding: 6px 0;
+        font-size: 12px;
+      }
+
+      .entry-buttons {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .day-cell {
+        min-height: 82px;
+        padding: 8px;
+        gap: 6px;
+      }
+
+      .day-number {
+        width: 28px;
+        height: 28px;
+        font-size: 14px;
+      }
+
+      .day-value {
+        min-height: 28px;
+        font-size: 20px;
+      }
+
+      .calendar-nav-button {
+        width: 40px;
+        height: 40px;
+        font-size: 24px;
+      }
+
+      .editor-panel {
+        padding: 18px 16px;
+        border-radius: 24px;
+      }
+
+      .editor-current {
+        font-size: 42px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="sheet">
+    <section class="hero">
+      <div class="title-row">
+        <div>
+          <h1>每日工作量統計表</h1>
+        </div>
+      </div>
+
+      <div class="summary">
+        <article class="summary-card">
+          <div class="summary-label">今日收入</div>
+          <div class="summary-value"><span id="todayIncome">0</span><span class="summary-unit">元</span></div>
+        </article>
+        <article class="summary-card">
+          <div class="summary-label">本月收入</div>
+          <div class="summary-value"><span id="monthIncome">0</span><span class="summary-unit">元</span></div>
+        </article>
+      </div>
+    </section>
+
+    <section class="content">
+      <div class="daily-entry">
+        <article class="date-card">
+          <div id="dateCardLabel" class="card-label">今日日期</div>
+          <div id="selectedDate" class="date-value">2026 / 06 / 01</div>
+        </article>
+
+        <article class="input-card">
+          <div class="card-label">今天完成的工作</div>
+          <div class="entry-row">
+            <div class="entry-buttons" role="group" aria-label="今天完成的工作">
+              <button class="entry-button" type="button" data-today-value="1">1</button>
+              <button class="entry-button" type="button" data-today-value="2">2</button>
+              <button class="entry-button" type="button" data-today-value="3">3</button>
+              <button class="entry-button" type="button" data-today-value="4">4</button>
+              <button class="entry-button" type="button" data-today-value="5">5</button>
+              <button class="entry-button" type="button" data-today-value="6">6</button>
+            </div>
+            <input id="todayInput" type="hidden" value="">
+          </div>
+        </article>
+      </div>
+
+      <section class="calendar-card">
+        <div class="calendar-head">
+          <div class="calendar-nav">
+            <button id="prevMonthButton" class="calendar-nav-button" type="button" aria-label="上一個月">‹</button>
+            <div class="calendar-heading">
+              <div id="calendarTitle" class="calendar-title">2026 年 6 月</div>
+            </div>
+            <button id="nextMonthButton" class="calendar-nav-button" type="button" aria-label="下一個月">›</button>
+          </div>
+        </div>
+
+        <div class="calendar-grid calendar-weekdays">
+          <div class="weekday">週一</div>
+          <div class="weekday">週二</div>
+          <div class="weekday">週三</div>
+          <div class="weekday">週四</div>
+          <div class="weekday">週五</div>
+          <div class="weekday">週六</div>
+          <div class="weekday">週日</div>
+        </div>
+
+        <div id="calendarDays" class="calendar-grid calendar-days"></div>
+      </section>
+
+      <section class="install-card">
+        <button id="installButton" class="install-button" type="button" disabled>安裝到主畫面</button>
+      </section>
+    </section>
+  </main>
+
+  <div id="valueEditor" class="editor-overlay" aria-hidden="true">
+    <div class="editor-panel" role="dialog" aria-modal="true" aria-labelledby="editorTitle">
+      <div class="editor-head">
+        <div>
+          <div id="editorTitle" class="editor-title">修改數值</div>
+          <div id="editorSubtitle" class="editor-subtitle">選擇 0 到 6</div>
+        </div>
+        <button id="editorClose" class="editor-close" type="button" aria-label="關閉">×</button>
+      </div>
+      <div id="editorCurrentValue" class="editor-current">0</div>
+      <input id="editorSlider" class="editor-slider" type="range" min="0" max="6" step="1" value="0" aria-label="數值滑動選單">
+      <div class="editor-scale">
+        <span style="left: 0%"></span>
+        <span style="left: 16.6667%">1</span>
+        <span style="left: 33.3333%">2</span>
+        <span style="left: 50%">3</span>
+        <span style="left: 66.6667%">4</span>
+        <span style="left: 83.3333%">5</span>
+        <span style="left: 100%">6</span>
+      </div>
+      <div class="editor-actions">
+        <button id="editorDone" class="editor-action" type="button">完成</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const unitPrice = 330;
+    const storageKey = "work-tracker-calendar";
+    const legacyStorageKey = "work-tracker-2026-06";
+    const dbName = "work-tracker-local-db";
+    const dbStoreName = "calendar-state";
+    const dbRecordKey = "primary";
+    const now = new Date();
+    const defaultView = {
+      year: now.getFullYear(),
+      month: now.getMonth(),
+      day: now.getDate(),
+    };
+    const todayInput = document.getElementById("todayInput");
+    const todayIncome = document.getElementById("todayIncome");
+    const monthIncome = document.getElementById("monthIncome");
+    const dateCardLabel = document.getElementById("dateCardLabel");
+    const selectedDate = document.getElementById("selectedDate");
+    const calendarTitle = document.getElementById("calendarTitle");
+    const calendarDays = document.getElementById("calendarDays");
+    const prevMonthButton = document.getElementById("prevMonthButton");
+    const nextMonthButton = document.getElementById("nextMonthButton");
+    const valueEditor = document.getElementById("valueEditor");
+    const editorClose = document.getElementById("editorClose");
+    const editorDone = document.getElementById("editorDone");
+    const editorSlider = document.getElementById("editorSlider");
+    const editorCurrentValue = document.getElementById("editorCurrentValue");
+    const editorSubtitle = document.getElementById("editorSubtitle");
+    const installButton = document.getElementById("installButton");
+    const todayButtons = Array.from(document.querySelectorAll(".entry-button"));
+    let currentView = { year: defaultView.year, month: defaultView.month };
+    let selectedDay = String(defaultView.day);
+    let dayValueElements = [];
+    let editingDay = null;
+    let deferredInstallPrompt = null;
+
+    function updateInstallUi() {
+      const isHttpPage = window.location.protocol.startsWith("http");
+      const isStandalone = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+
+      if (isStandalone) {
+        installButton.disabled = true;
+        return;
+      }
+
+      if (deferredInstallPrompt) {
+        installButton.disabled = false;
+        return;
+      }
+
+      installButton.disabled = true;
+
+      if (!isHttpPage) {
+        return;
+      }
+    }
+
+    function toAmount(value) {
+      const parsed = Number(value);
+      return Number.isFinite(parsed) && parsed > 0 ? parsed : 0;
+    }
+
+    function getMonthKey(year = currentView.year, month = currentView.month) {
+      return `${year}-${String(month + 1).padStart(2, "0")}`;
+    }
+
+    function getDaysInMonth(year = currentView.year, month = currentView.month) {
+      return new Date(year, month + 1, 0).getDate();
+    }
+
+    function normalizeDay(value, daysInMonth = getDaysInMonth()) {
+      const parsed = Number(value);
+      if (!Number.isInteger(parsed) || parsed < 1 || parsed > daysInMonth) {
+        return "1";
+      }
+      return String(parsed);
+    }
+
+    function getDayValueElement(day) {
+      return dayValueElements.find((element) => element.dataset.day === day) || null;
+    }
+
+    function getMonthOffset(year = currentView.year, month = currentView.month) {
+      return (new Date(year, month, 1).getDay() + 6) % 7;
+    }
+
+    function getMonthState(year = currentView.year, month = currentView.month) {
+      const monthKey = getMonthKey(year, month);
+      if (!allState.months[monthKey]) {
+        allState.months[monthKey] = {
+          selectedDay: year === defaultView.year && month === defaultView.month ? String(defaultView.day) : "1",
+          dayValues: {},
+        };
+      }
+      return allState.months[monthKey];
+    }
+
+    const allState = {
+      view: { year: defaultView.year, month: defaultView.month },
+      months: {},
+    };
+
+    function setTodaySelection(value) {
+      const normalized = value === "" ? "" : String(toAmount(value));
+      todayInput.value = normalized;
+
+      todayButtons.forEach((button) => {
+        button.classList.toggle("is-active", button.dataset.todayValue === normalized);
+      });
+    }
+
+    function setSelectedDay(day) {
+      selectedDay = normalizeDay(day);
+      getMonthState().selectedDay = selectedDay;
+      const isTodaySelection = currentView.year === defaultView.year
+        && currentView.month === defaultView.month
+        && selectedDay === String(defaultView.day);
+      dateCardLabel.textContent = isTodaySelection ? "今日日期" : "你所选的日期";
+      selectedDate.textContent = `${currentView.year} / ${String(currentView.month + 1).padStart(2, "0")} / ${selectedDay.padStart(2, "0")}`;
+
+      dayValueElements.forEach((element) => {
+        const dayCell = element.closest(".day-cell");
+        if (dayCell) {
+          dayCell.classList.toggle("is-selected", element.dataset.day === selectedDay);
+        }
+      });
+
+      const monthState = getMonthState();
+      setTodaySelection(monthState.dayValues[selectedDay] || "");
+    }
+
+    function setDayValue(day, value) {
+      const normalizedDay = normalizeDay(day);
+      const normalizedValue = toAmount(value) === 0 ? "" : String(toAmount(value));
+      const monthState = getMonthState();
+      monthState.dayValues[normalizedDay] = normalizedValue;
+
+      const dayValueElement = getDayValueElement(normalizedDay);
+      if (dayValueElement) {
+        dayValueElement.textContent = normalizedValue;
+      }
+    }
+
+    function openValueEditor(day) {
+      editingDay = normalizeDay(day);
+      const currentValue = getMonthState().dayValues[editingDay] || "0";
+      editorSubtitle.textContent = `${currentView.year} / ${String(currentView.month + 1).padStart(2, "0")} / ${editingDay.padStart(2, "0")}`;
+      editorSlider.value = String(toAmount(currentValue));
+      editorCurrentValue.textContent = toAmount(editorSlider.value) === 0 ? "" : editorSlider.value;
+      valueEditor.classList.add("is-open");
+      valueEditor.setAttribute("aria-hidden", "false");
+    }
+
+    function closeValueEditor() {
+      editingDay = null;
+      valueEditor.classList.remove("is-open");
+      valueEditor.setAttribute("aria-hidden", "true");
+    }
+
+    function applyEditorValue() {
+      if (!editingDay) {
+        return;
+      }
+
+      setDayValue(editingDay, editorSlider.value);
+      if (editingDay === selectedDay) {
+        setTodaySelection(editorSlider.value);
+      }
+      refreshSummary();
+      saveState();
+    }
+
+    function renderCalendar() {
+      const monthState = getMonthState();
+      const dayCount = getDaysInMonth();
+      const offset = getMonthOffset();
+      calendarTitle.textContent = `${currentView.year} 年 ${currentView.month + 1} 月`;
+      calendarDays.innerHTML = "";
+
+      for (let index = 0; index < offset; index += 1) {
+        const emptyCell = document.createElement("div");
+        emptyCell.className = "day-cell empty";
+        calendarDays.appendChild(emptyCell);
+      }
+
+      for (let day = 1; day <= dayCount; day += 1) {
+        const dayCell = document.createElement("div");
+        dayCell.className = "day-cell";
+
+        if (currentView.year === defaultView.year && currentView.month === defaultView.month && day === defaultView.day) {
+          dayCell.classList.add("is-today");
+        }
+
+        const dayTop = document.createElement("div");
+        dayTop.className = "day-top";
+
+        const dayNumber = document.createElement("span");
+        dayNumber.className = "day-number";
+        dayNumber.textContent = String(day);
+        dayTop.appendChild(dayNumber);
+
+        if (currentView.year === defaultView.year && currentView.month === defaultView.month && day === defaultView.day) {
+          const tag = document.createElement("span");
+          tag.className = "day-tag";
+          tag.setAttribute("aria-label", "今天");
+          tag.title = "今天";
+          dayTop.appendChild(tag);
+        }
+
+        const dayValue = document.createElement("div");
+        dayValue.className = "day-value";
+        dayValue.dataset.day = String(day);
+        dayValue.textContent = monthState.dayValues[String(day)] || "";
+
+        dayCell.append(dayTop, dayValue);
+        calendarDays.appendChild(dayCell);
+      }
+
+      dayValueElements = Array.from(calendarDays.querySelectorAll(".day-value"));
+
+      dayValueElements.forEach((element) => {
+        const dayCell = element.closest(".day-cell");
+
+        if (dayCell) {
+          dayCell.addEventListener("click", () => {
+            setSelectedDay(element.dataset.day || "1");
+            saveState();
+          });
+        }
+
+        element.addEventListener("click", (event) => {
+          event.stopPropagation();
+          setSelectedDay(element.dataset.day || "1");
+          openValueEditor(element.dataset.day || "1");
+        });
+      });
+
+      setSelectedDay(monthState.selectedDay || "1");
+      refreshSummary();
+    }
+
+    function saveState() {
+      allState.view = { year: currentView.year, month: currentView.month };
+      getMonthState().selectedDay = selectedDay;
+      const serializedState = JSON.stringify(allState);
+      localStorage.setItem(storageKey, serializedState);
+      void saveStateToIndexedDb(serializedState);
+    }
+
+    function applyLoadedState(savedState) {
+      try {
+        const parsedState = typeof savedState === "string" ? JSON.parse(savedState) : savedState;
+        allState.months = parsedState.months || {};
+        return true;
+      } catch (error) {
+        localStorage.removeItem(storageKey);
+        return false;
+      }
+    }
+
+    function migrateLegacyState() {
+      const legacyState = localStorage.getItem(legacyStorageKey);
+      if (!legacyState) {
+        return false;
+      }
+
+      try {
+        const parsedLegacyState = JSON.parse(legacyState);
+        allState.months["2026-06"] = {
+          selectedDay: "1",
+          dayValues: parsedLegacyState.dayValues || {},
+        };
+        saveState();
+        return true;
+      } catch (error) {
+        return false;
+      }
+    }
+
+    function openDatabase() {
+      return new Promise((resolve, reject) => {
+        function openWithVersion(version) {
+          const request = indexedDB.open(dbName, version);
+
+          request.addEventListener("upgradeneeded", () => {
+            const database = request.result;
+            if (!database.objectStoreNames.contains(dbStoreName)) {
+              database.createObjectStore(dbStoreName);
+            }
+          });
+
+          request.addEventListener("success", () => {
+            const database = request.result;
+            if (!database.objectStoreNames.contains(dbStoreName)) {
+              const nextVersion = database.version + 1;
+              database.close();
+              openWithVersion(nextVersion);
+              return;
+            }
+            resolve(database);
+          });
+
+          request.addEventListener("error", () => reject(request.error));
+        }
+
+        openWithVersion();
+      });
+    }
+
+    async function saveStateToIndexedDb(serializedState) {
+      try {
+        const database = await openDatabase();
+        await new Promise((resolve, reject) => {
+          const transaction = database.transaction(dbStoreName, "readwrite");
+          transaction.objectStore(dbStoreName).put(serializedState, dbRecordKey);
+          transaction.addEventListener("complete", resolve);
+          transaction.addEventListener("error", () => reject(transaction.error));
+        });
+        database.close();
+      } catch (error) {
+        // Ignore backup write failures and keep primary localStorage save.
+      }
+    }
+
+    async function loadStateFromIndexedDb() {
+      try {
+        const database = await openDatabase();
+        const storedState = await new Promise((resolve, reject) => {
+          const transaction = database.transaction(dbStoreName, "readonly");
+          const request = transaction.objectStore(dbStoreName).get(dbRecordKey);
+          request.addEventListener("success", () => resolve(request.result || null));
+          request.addEventListener("error", () => reject(request.error));
+        });
+        database.close();
+        return storedState;
+      } catch (error) {
+        return null;
+      }
+    }
+
+    async function loadState() {
+      const savedState = localStorage.getItem(storageKey);
+      if (savedState && applyLoadedState(savedState)) {
+        return;
+      }
+
+      const indexedDbState = await loadStateFromIndexedDb();
+      if (indexedDbState && applyLoadedState(indexedDbState)) {
+        localStorage.setItem(storageKey, typeof indexedDbState === "string" ? indexedDbState : JSON.stringify(indexedDbState));
+        return;
+      }
+
+      migrateLegacyState();
+    }
+
+    function refreshSummary() {
+      const total = Object.values(getMonthState().dayValues).reduce((sum, value) => sum + toAmount(value) * unitPrice, 0);
+      todayIncome.textContent = String(toAmount(todayInput.value) * unitPrice);
+      monthIncome.textContent = String(total);
+    }
+
+    function changeMonth(step) {
+      currentView.month += step;
+
+      if (currentView.month < 0) {
+        currentView.month = 11;
+        currentView.year -= 1;
+      }
+
+      if (currentView.month > 11) {
+        currentView.month = 0;
+        currentView.year += 1;
+      }
+
+      renderCalendar();
+      saveState();
+    }
+
+    todayButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        const selectedValue = button.dataset.todayValue || "";
+        setTodaySelection(selectedValue);
+        setDayValue(selectedDay, selectedValue);
+        refreshSummary();
+        saveState();
+      });
+    });
+
+    prevMonthButton.addEventListener("click", () => changeMonth(-1));
+    nextMonthButton.addEventListener("click", () => changeMonth(1));
+    editorSlider.addEventListener("input", () => {
+      editorCurrentValue.textContent = toAmount(editorSlider.value) === 0 ? "" : editorSlider.value;
+      applyEditorValue();
+    });
+    editorClose.addEventListener("click", closeValueEditor);
+    editorDone.addEventListener("click", closeValueEditor);
+    valueEditor.addEventListener("click", (event) => {
+      if (event.target === valueEditor) {
+        closeValueEditor();
+      }
+    });
+
+    window.addEventListener("beforeinstallprompt", (event) => {
+      event.preventDefault();
+      deferredInstallPrompt = event;
+      updateInstallUi();
+    });
+
+    installButton.addEventListener("click", async () => {
+      if (!deferredInstallPrompt) {
+        updateInstallUi();
+        return;
+      }
+
+      deferredInstallPrompt.prompt();
+      const choice = await deferredInstallPrompt.userChoice;
+      deferredInstallPrompt = null;
+      updateInstallUi();
+    });
+
+    window.addEventListener("appinstalled", () => {
+      deferredInstallPrompt = null;
+      updateInstallUi();
+    });
+
+    async function init() {
+      await loadState();
+      currentView = { year: defaultView.year, month: defaultView.month };
+      selectedDay = String(defaultView.day);
+      renderCalendar();
+      saveState();
+      updateInstallUi();
+    }
+
+    if ("serviceWorker" in navigator && window.location.protocol.startsWith("http")) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./sw.js").catch(() => {
+          // Ignore registration failures in unsupported environments.
+        });
+      });
+    }
+
+    void init();
+  </script>
+</body>
+</html>

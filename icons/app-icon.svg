@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="每日工作量統計表圖示">
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#f3e4cb"/>
+      <stop offset="100%" stop-color="#fff9ef"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#cb7c41"/>
+      <stop offset="100%" stop-color="#e59f57"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="110" fill="url(#bg)"/>
+  <rect x="76" y="86" width="360" height="340" rx="42" fill="#fffdf8" stroke="#dfc7aa" stroke-width="10"/>
+  <rect x="76" y="86" width="360" height="84" rx="42" fill="url(#accent)"/>
+  <circle cx="138" cy="128" r="12" fill="#fff7ef"/>
+  <circle cx="180" cy="128" r="12" fill="#fff7ef"/>
+  <circle cx="222" cy="128" r="12" fill="#fff7ef"/>
+  <rect x="112" y="208" width="78" height="78" rx="22" fill="#f5e7d4"/>
+  <rect x="217" y="208" width="78" height="78" rx="22" fill="#f5e7d4"/>
+  <rect x="322" y="208" width="78" height="78" rx="22" fill="#f5e7d4"/>
+  <rect x="112" y="312" width="78" height="78" rx="22" fill="#f5e7d4"/>
+  <rect x="217" y="312" width="78" height="78" rx="22" fill="url(#accent)"/>
+  <rect x="322" y="312" width="78" height="78" rx="22" fill="#f5e7d4"/>
+  <path d="M240 144h110" stroke="#fff7ef" stroke-linecap="round" stroke-width="18"/>
+  <path d="M245 246h22" stroke="#8d6d4c" stroke-linecap="round" stroke-width="12"/>
+  <path d="M350 246h22" stroke="#8d6d4c" stroke-linecap="round" stroke-width="12"/>
+  <path d="M145 246h22" stroke="#8d6d4c" stroke-linecap="round" stroke-width="12"/>
+  <path d="M145 350h22" stroke="#8d6d4c" stroke-linecap="round" stroke-width="12"/>
+  <path d="M350 350h22" stroke="#8d6d4c" stroke-linecap="round" stroke-width="12"/>
+  <path d="M240 350h33" stroke="#fffdf8" stroke-linecap="round" stroke-width="14"/>
+</svg>
