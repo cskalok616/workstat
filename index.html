@@ -318,13 +318,9 @@
       transform: translateY(-1px);
     }
 
-    .day-cell.is-today {
-      border-color: rgba(203, 124, 65, 0.4);
-    }
-
     .day-top {
       display: flex;
-      justify-content: space-between;
+      justify-content: flex-start;
       align-items: center;
       gap: 8px;
     }
@@ -347,16 +343,14 @@
     }
 
     .day-cell.is-today .day-number {
-      box-shadow: inset 0 0 0 2px rgba(203, 124, 65, 0.65);
+      background: #d74a45;
+      color: #fff;
+      box-shadow: none;
     }
 
-    .day-tag {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: var(--accent);
-      box-shadow: 0 0 0 4px rgba(203, 124, 65, 0.12);
-      flex: 0 0 auto;
+    .day-cell.is-selected.is-today .day-number {
+      background: #d74a45;
+      color: #fff;
     }
 
     .day-value {
@@ -890,14 +884,6 @@
         dayNumber.className = "day-number";
         dayNumber.textContent = String(day);
         dayTop.appendChild(dayNumber);
-
-        if (currentView.year === defaultView.year && currentView.month === defaultView.month && day === defaultView.day) {
-          const tag = document.createElement("span");
-          tag.className = "day-tag";
-          tag.setAttribute("aria-label", "今天");
-          tag.title = "今天";
-          dayTop.appendChild(tag);
-        }
 
         const dayValue = document.createElement("div");
         dayValue.className = "day-value";
