@@ -1299,7 +1299,7 @@
     });
 
     installButton.addEventListener("click", () => {
-      setInstallGuide(getInstallPlatform());
+      setInstallGuide("iphone");
       openInstallDialog();
     });
 
@@ -1327,7 +1327,7 @@
       selectedDay = String(defaultView.day);
       renderCalendar();
       saveState();
-      setInstallGuide(getInstallPlatform());
+      setInstallGuide("iphone");
       updateInstallUi();
     }
 
