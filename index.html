@@ -485,19 +485,6 @@
       text-align: left;
     }
 
-    .install-header {
-      display: grid;
-      gap: 6px;
-      justify-items: center;
-      text-align: center;
-    }
-
-    .install-status {
-      color: var(--muted);
-      font-size: 14px;
-      line-height: 1.5;
-    }
-
     .install-button {
       min-width: 220px;
       border: none;
@@ -752,10 +739,6 @@
       </section>
 
       <section class="install-card">
-        <div class="install-header">
-          <div class="card-label">安裝到主畫面</div>
-          <div id="installStatus" class="install-status">Android 可直接按按鈕安裝，iPhone 請看下方 Safari 教學。</div>
-        </div>
         <button id="installButton" class="install-button" type="button" disabled>安裝到主畫面</button>
         <div class="install-tabs" role="tablist" aria-label="安裝教學裝置切換">
           <button id="tabIphone" class="install-tab" type="button" role="tab" aria-selected="false" aria-controls="guideIphone" data-platform="iphone">iPhone 安裝教學</button>
@@ -844,8 +827,7 @@
     const editorCurrentValue = document.getElementById("editorCurrentValue");
     const editorSubtitle = document.getElementById("editorSubtitle");
     const installButton = document.getElementById("installButton");
-    const installStatus = document.getElementById("installStatus");
-    const installTabs = Array.from(document.querySelectorAll(".install-tab"));
+      const installTabs = Array.from(document.querySelectorAll(".install-tab"));
     const installGuides = Array.from(document.querySelectorAll(".install-guide"));
     const todayButtons = Array.from(document.querySelectorAll(".entry-button"));
     let currentView = { year: defaultView.year, month: defaultView.month };
@@ -883,26 +865,19 @@
 
       if (isStandalone) {
         installButton.disabled = true;
-        installStatus.textContent = "已安裝完成，可以直接從主畫面開啟。";
         return;
       }
 
       if (deferredInstallPrompt) {
         installButton.disabled = false;
-        installStatus.textContent = "這台裝置可直接按上方按鈕完成安裝。";
         return;
       }
 
       installButton.disabled = true;
 
       if (!isHttpPage) {
-        installStatus.textContent = "請用公開網址開啟後再安裝，檔案網址不支援加入主畫面。";
         return;
       }
-
-      installStatus.textContent = platform === "iphone"
-        ? "iPhone 請用 Safari 依照下方步驟加入主畫面。"
-        : "Android 可用下方按鈕直接安裝，若按鈕灰色可改用 Chrome 選單安裝。";
     }
 
     function toAmount(value) {
