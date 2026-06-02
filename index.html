@@ -504,9 +504,68 @@
     }
 
     .install-button:disabled {
-      cursor: default;
-      opacity: 0.55;
-      box-shadow: none;
+      cursor: pointer;
+      opacity: 1;
+      box-shadow: 0 12px 24px rgba(203, 124, 65, 0.22);
+    }
+
+    .install-dialog-overlay {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      background: rgba(47, 36, 25, 0.28);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 160ms ease;
+      z-index: 30;
+    }
+
+    .install-dialog-overlay[hidden] {
+      display: none;
+    }
+
+    .install-dialog-overlay.is-open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .install-dialog {
+      width: min(100%, 680px);
+      max-height: min(86vh, 760px);
+      overflow: auto;
+      display: grid;
+      gap: 16px;
+      padding: 22px;
+      border-radius: 28px;
+      background: var(--panel-strong);
+      box-shadow: 0 20px 48px rgba(47, 36, 25, 0.2);
+    }
+
+    .install-dialog-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .install-dialog-title {
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .install-dialog-close {
+      width: 40px;
+      height: 40px;
+      border: 0;
+      border-radius: 50%;
+      background: rgba(203, 124, 65, 0.12);
+      color: var(--text);
+      font-size: 26px;
+      line-height: 1;
+      cursor: pointer;
     }
 
     .install-tabs {
@@ -514,8 +573,6 @@
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 10px;
       width: 100%;
-      max-width: 620px;
-      margin: 0 auto;
     }
 
     .install-tab {
@@ -538,8 +595,6 @@
 
     .install-guides {
       width: 100%;
-      max-width: 620px;
-      margin: 0 auto;
     }
 
     .install-guide {
@@ -754,38 +809,47 @@
       </section>
 
       <section class="install-card">
-        <button id="installButton" class="install-button" type="button" disabled>把APP安装到手机主画面教学</button>
-        <div class="install-tabs" role="tablist" aria-label="安裝教學裝置切換">
-          <button id="tabIphone" class="install-tab" type="button" role="tab" aria-selected="false" aria-controls="guideIphone" data-platform="iphone">苹果安装教学</button>
-          <button id="tabAndroid" class="install-tab is-active" type="button" role="tab" aria-selected="true" aria-controls="guideAndroid" data-platform="android">安卓安装教学</button>
-        </div>
-        <div class="install-guides">
-          <article id="guideIphone" class="install-guide" role="tabpanel" aria-labelledby="tabIphone" hidden>
-            <div class="install-guide-title">iPhone</div>
-            <ol class="guide-list">
-              <li>请先用 Safari 打开这个网站，不要用 Chrome 内建浏览器。</li>
-              <li>点底部的分享按钮<span class="guide-inline-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 3V14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 7L12 3L16 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 10.5H6.6C5.71634 10.5 5 11.2163 5 12.1V18.4C5 19.2837 5.71635 20 6.6 20H17.4C18.2837 20 19 19.2837 19 18.4V12.1C19 11.2163 18.2837 10.5 17.4 10.5H17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>。</li>
-              <li>往下找到“添加到主屏幕”。</li>
-              <li>确认名称后，点右上角“添加”。</li>
-              <li>回到 iPhone 主屏幕后，就能像 App 一样直接打开。</li>
-            </ol>
-            <div class="guide-tip">如果你现在不是用 Safari，先把网址复制到 Safari 再做一次。iPhone 不会跳出自动安装窗口，这是 iOS 的限制。</div>
-          </article>
-          <article id="guideAndroid" class="install-guide is-active" role="tabpanel" aria-labelledby="tabAndroid">
-            <div class="install-guide-title">Android</div>
-            <ol class="guide-list">
-              <li>先用 Chrome 或 Edge 打开这个网站。</li>
-              <li>如果上方的“把APP安装到手机主画面教学”按钮可以点，直接点它。</li>
-              <li>如果没有跳出安装窗口，就打开浏览器右上角菜单。</li>
-              <li>点“安装应用程序”或“添加到主屏幕”。</li>
-              <li>确认后完成安装，之后就可以从桌面直接打开。</li>
-            </ol>
-            <div class="guide-tip">看到可以点的安装按钮时，代表这台 Android 设备支持直接安装。如果按钮是灰色，通常改用 Chrome 打开就会出现。</div>
-          </article>
-        </div>
+        <button id="installButton" class="install-button" type="button">把APP安装到手机主画面教学</button>
       </section>
     </section>
   </main>
+
+  <div id="installDialog" class="install-dialog-overlay" aria-hidden="true" hidden>
+    <div class="install-dialog" role="dialog" aria-modal="true" aria-labelledby="installDialogTitle">
+      <div class="install-dialog-head">
+        <div id="installDialogTitle" class="install-dialog-title">把APP安装到手机主画面教学</div>
+        <button id="installDialogClose" class="install-dialog-close" type="button" aria-label="关闭">×</button>
+      </div>
+      <div class="install-tabs" role="tablist" aria-label="安裝教學裝置切換">
+        <button id="tabIphone" class="install-tab" type="button" role="tab" aria-selected="false" aria-controls="guideIphone" data-platform="iphone">苹果安装教学</button>
+        <button id="tabAndroid" class="install-tab is-active" type="button" role="tab" aria-selected="true" aria-controls="guideAndroid" data-platform="android">安卓安装教学</button>
+      </div>
+      <div class="install-guides">
+        <article id="guideIphone" class="install-guide" role="tabpanel" aria-labelledby="tabIphone" hidden>
+          <div class="install-guide-title">iPhone</div>
+          <ol class="guide-list">
+            <li>请先用 Safari 打开这个网站，不要用 Chrome 内建浏览器。</li>
+            <li>点底部的分享按钮<span class="guide-inline-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 3V14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 7L12 3L16 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 10.5H6.6C5.71634 10.5 5 11.2163 5 12.1V18.4C5 19.2837 5.71635 20 6.6 20H17.4C18.2837 20 19 19.2837 19 18.4V12.1C19 11.2163 18.2837 10.5 17.4 10.5H17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>。</li>
+            <li>往下找到“添加到主屏幕”。</li>
+            <li>确认名称后，点右上角“添加”。</li>
+            <li>回到 iPhone 主屏幕后，就能像 App 一样直接打开。</li>
+          </ol>
+          <div class="guide-tip">如果你现在不是用 Safari，先把网址复制到 Safari 再做一次。iPhone 不会跳出自动安装窗口，这是 iOS 的限制。</div>
+        </article>
+        <article id="guideAndroid" class="install-guide is-active" role="tabpanel" aria-labelledby="tabAndroid">
+          <div class="install-guide-title">Android</div>
+          <ol class="guide-list">
+            <li>先用 Chrome 或 Edge 打开这个网站。</li>
+            <li>先点“把APP安装到手机主画面教学”，再按照这里的步骤操作。</li>
+            <li>如果没有跳出安装窗口，就打开浏览器右上角菜单。</li>
+            <li>点“安装应用程序”或“添加到主屏幕”。</li>
+            <li>确认后完成安装，之后就可以从桌面直接打开。</li>
+          </ol>
+          <div class="guide-tip">看到可以点的安装按钮时，代表这台 Android 设备支持直接安装。如果按钮是灰色，通常改用 Chrome 打开就会出现。</div>
+        </article>
+      </div>
+    </div>
+  </div>
 
   <div id="valueEditor" class="editor-overlay" aria-hidden="true">
     <div class="editor-panel" role="dialog" aria-modal="true" aria-labelledby="editorTitle">
@@ -842,7 +906,9 @@
     const editorCurrentValue = document.getElementById("editorCurrentValue");
     const editorSubtitle = document.getElementById("editorSubtitle");
     const installButton = document.getElementById("installButton");
-      const installTabs = Array.from(document.querySelectorAll(".install-tab"));
+    const installDialog = document.getElementById("installDialog");
+    const installDialogClose = document.getElementById("installDialogClose");
+    const installTabs = Array.from(document.querySelectorAll(".install-tab"));
     const installGuides = Array.from(document.querySelectorAll(".install-guide"));
     const todayButtons = Array.from(document.querySelectorAll(".entry-button"));
     let currentView = { year: defaultView.year, month: defaultView.month };
@@ -873,26 +939,20 @@
       });
     }
 
+    function openInstallDialog() {
+      installDialog.hidden = false;
+      installDialog.classList.add("is-open");
+      installDialog.setAttribute("aria-hidden", "false");
+    }
+
+    function closeInstallDialog() {
+      installDialog.classList.remove("is-open");
+      installDialog.setAttribute("aria-hidden", "true");
+      installDialog.hidden = true;
+    }
+
     function updateInstallUi() {
-      const isHttpPage = window.location.protocol.startsWith("http");
-      const isStandalone = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
-      const platform = getInstallPlatform();
-
-      if (isStandalone) {
-        installButton.disabled = true;
-        return;
-      }
-
-      if (deferredInstallPrompt) {
-        installButton.disabled = false;
-        return;
-      }
-
-      installButton.disabled = true;
-
-      if (!isHttpPage) {
-        return;
-      }
+      installButton.disabled = false;
     }
 
     function toAmount(value) {
@@ -1238,21 +1298,21 @@
       updateInstallUi();
     });
 
-    installButton.addEventListener("click", async () => {
-      if (!deferredInstallPrompt) {
-        updateInstallUi();
-        return;
-      }
-
-      deferredInstallPrompt.prompt();
-      const choice = await deferredInstallPrompt.userChoice;
-      deferredInstallPrompt = null;
-      updateInstallUi();
+    installButton.addEventListener("click", () => {
+      setInstallGuide(getInstallPlatform());
+      openInstallDialog();
     });
 
     window.addEventListener("appinstalled", () => {
       deferredInstallPrompt = null;
       updateInstallUi();
+    });
+
+    installDialogClose.addEventListener("click", closeInstallDialog);
+    installDialog.addEventListener("click", (event) => {
+      if (event.target === installDialog) {
+        closeInstallDialog();
+      }
     });
 
     installTabs.forEach((tab) => {
