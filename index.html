@@ -480,10 +480,22 @@
 
     .install-card {
       display: grid;
-      gap: 0;
+      gap: 16px;
+      padding: 14px 4px 0;
+      text-align: left;
+    }
+
+    .install-header {
+      display: grid;
+      gap: 6px;
       justify-items: center;
-      padding: 10px 4px 0;
       text-align: center;
+    }
+
+    .install-status {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.5;
     }
 
     .install-button {
@@ -508,6 +520,90 @@
       cursor: default;
       opacity: 0.55;
       box-shadow: none;
+    }
+
+    .install-tabs {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      width: 100%;
+      max-width: 620px;
+      margin: 0 auto;
+    }
+
+    .install-tab {
+      border: 1px solid rgba(154, 120, 83, 0.18);
+      border-radius: 16px;
+      padding: 12px 14px;
+      background: rgba(255, 255, 255, 0.88);
+      color: var(--text);
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: border-color 120ms ease, transform 120ms ease, box-shadow 120ms ease, background 120ms ease;
+    }
+
+    .install-tab.is-active {
+      background: rgba(203, 124, 65, 0.14);
+      border-color: var(--accent);
+      box-shadow: 0 10px 18px rgba(203, 124, 65, 0.1);
+    }
+
+    .install-guides {
+      width: 100%;
+      max-width: 620px;
+      margin: 0 auto;
+    }
+
+    .install-guide {
+      display: none;
+      gap: 12px;
+      padding: 20px;
+      background: rgba(255, 253, 248, 0.92);
+      border: 1px solid rgba(154, 120, 83, 0.14);
+      border-radius: 22px;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
+    }
+
+    .install-guide.is-active {
+      display: grid;
+    }
+
+    .install-guide-title {
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .guide-list {
+      margin: 0;
+      padding-left: 22px;
+      display: grid;
+      gap: 10px;
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .guide-tip {
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: rgba(203, 124, 65, 0.1);
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .guide-chip {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 28px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: rgba(215, 74, 69, 0.12);
+      color: #c43b36;
+      font-size: 13px;
+      font-weight: 700;
+      vertical-align: middle;
     }
 
     @media (max-width: 860px) {
@@ -548,6 +644,10 @@
 
       .entry-buttons {
         grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .install-tabs {
+        grid-template-columns: 1fr;
       }
 
       .day-cell {
@@ -653,7 +753,39 @@
       </section>
 
       <section class="install-card">
+        <div class="install-header">
+          <div class="card-label">安裝到主畫面</div>
+          <div id="installStatus" class="install-status">Android 可直接按按鈕安裝，iPhone 請看下方 Safari 教學。</div>
+        </div>
         <button id="installButton" class="install-button" type="button" disabled>安裝到主畫面</button>
+        <div class="install-tabs" role="tablist" aria-label="安裝教學裝置切換">
+          <button id="tabIphone" class="install-tab" type="button" role="tab" aria-selected="false" aria-controls="guideIphone" data-platform="iphone">iPhone 安裝教學</button>
+          <button id="tabAndroid" class="install-tab is-active" type="button" role="tab" aria-selected="true" aria-controls="guideAndroid" data-platform="android">Android 安裝教學</button>
+        </div>
+        <div class="install-guides">
+          <article id="guideIphone" class="install-guide" role="tabpanel" aria-labelledby="tabIphone" hidden>
+            <div class="install-guide-title">iPhone</div>
+            <ol class="guide-list">
+              <li>請先用 Safari 開啟這個網站，不要用 LINE、Messenger 或 Chrome 內建瀏覽器。</li>
+              <li>點底部的分享按鈕。</li>
+              <li>往下找到「加入主畫面」。</li>
+              <li>確認名稱後，點右上角「加入」。</li>
+              <li>回到 iPhone 主畫面，就能像 App 一樣直接打開。</li>
+            </ol>
+            <div class="guide-tip">如果你現在不是用 Safari，先把網址複製到 Safari 再做一次。iPhone 不會跳出自動安裝視窗，這是 iOS 的限制。</div>
+          </article>
+          <article id="guideAndroid" class="install-guide is-active" role="tabpanel" aria-labelledby="tabAndroid">
+            <div class="install-guide-title">Android</div>
+            <ol class="guide-list">
+              <li>先用 Chrome 或 Edge 開啟這個網站。</li>
+              <li>如果上方的「安裝到主畫面」按鈕可以按，直接點它。</li>
+              <li>如果沒有跳出安裝視窗，就打開瀏覽器右上角選單。</li>
+              <li>點「安裝應用程式」或「加入主畫面」。</li>
+              <li>確認後完成安裝，之後就可以從桌面直接開啟。</li>
+            </ol>
+            <div class="guide-tip">看到可點的安裝按鈕時，代表這台 Android 裝置支援直接安裝。若按鈕是灰色，通常改用 Chrome 開啟就會出現。</div>
+          </article>
+        </div>
       </section>
     </section>
   </main>
@@ -713,6 +845,9 @@
     const editorCurrentValue = document.getElementById("editorCurrentValue");
     const editorSubtitle = document.getElementById("editorSubtitle");
     const installButton = document.getElementById("installButton");
+    const installStatus = document.getElementById("installStatus");
+    const installTabs = Array.from(document.querySelectorAll(".install-tab"));
+    const installGuides = Array.from(document.querySelectorAll(".install-guide"));
     const todayButtons = Array.from(document.querySelectorAll(".entry-button"));
     let currentView = { year: defaultView.year, month: defaultView.month };
     let selectedDay = String(defaultView.day);
@@ -720,25 +855,55 @@
     let editingDay = null;
     let deferredInstallPrompt = null;
 
+    function getInstallPlatform() {
+      const userAgent = navigator.userAgent || "";
+      if (/iPhone|iPad|iPod/i.test(userAgent)) {
+        return "iphone";
+      }
+      return "android";
+    }
+
+    function setInstallGuide(platform) {
+      installTabs.forEach((tab) => {
+        const isActive = tab.dataset.platform === platform;
+        tab.classList.toggle("is-active", isActive);
+        tab.setAttribute("aria-selected", String(isActive));
+      });
+
+      installGuides.forEach((guide) => {
+        const isActive = guide.id === `guide${platform.charAt(0).toUpperCase()}${platform.slice(1)}`;
+        guide.classList.toggle("is-active", isActive);
+        guide.hidden = !isActive;
+      });
+    }
+
     function updateInstallUi() {
       const isHttpPage = window.location.protocol.startsWith("http");
       const isStandalone = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+      const platform = getInstallPlatform();
 
       if (isStandalone) {
         installButton.disabled = true;
+        installStatus.textContent = "已安裝完成，可以直接從主畫面開啟。";
         return;
       }
 
       if (deferredInstallPrompt) {
         installButton.disabled = false;
+        installStatus.textContent = "這台裝置可直接按上方按鈕完成安裝。";
         return;
       }
 
       installButton.disabled = true;
 
       if (!isHttpPage) {
+        installStatus.textContent = "請用公開網址開啟後再安裝，檔案網址不支援加入主畫面。";
         return;
       }
+
+      installStatus.textContent = platform === "iphone"
+        ? "iPhone 請用 Safari 依照下方步驟加入主畫面。"
+        : "Android 可用下方按鈕直接安裝，若按鈕灰色可改用 Chrome 選單安裝。";
     }
 
     function toAmount(value) {
@@ -1101,12 +1266,19 @@
       updateInstallUi();
     });
 
+    installTabs.forEach((tab) => {
+      tab.addEventListener("click", () => {
+        setInstallGuide(tab.dataset.platform || "android");
+      });
+    });
+
     async function init() {
       await loadState();
       currentView = { year: defaultView.year, month: defaultView.month };
       selectedDay = String(defaultView.day);
       renderCalendar();
       saveState();
+      setInstallGuide(getInstallPlatform());
       updateInstallUi();
     }
 
