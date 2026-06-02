@@ -593,6 +593,21 @@
       vertical-align: middle;
     }
 
+    .guide-inline-icon {
+      display: inline-flex;
+      width: 18px;
+      height: 18px;
+      margin-left: 6px;
+      vertical-align: -3px;
+      color: #2f2419;
+    }
+
+    .guide-inline-icon svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
     @media (max-width: 860px) {
       .daily-entry {
         grid-template-columns: 1fr;
@@ -749,7 +764,7 @@
             <div class="install-guide-title">iPhone</div>
             <ol class="guide-list">
               <li>请先用 Safari 打开这个网站，不要用 Chrome 内建浏览器。</li>
-              <li>点底部的分享按钮。</li>
+              <li>点底部的分享按钮<span class="guide-inline-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 3V14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 7L12 3L16 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 10.5H6.6C5.71634 10.5 5 11.2163 5 12.1V18.4C5 19.2837 5.71635 20 6.6 20H17.4C18.2837 20 19 19.2837 19 18.4V12.1C19 11.2163 18.2837 10.5 17.4 10.5H17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>。</li>
               <li>往下找到“添加到主屏幕”。</li>
               <li>确认名称后，点右上角“添加”。</li>
               <li>回到 iPhone 主屏幕后，就能像 App 一样直接打开。</li>
