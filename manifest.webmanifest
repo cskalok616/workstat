@@ -1,6 +1,6 @@
 {
-  "name": "每日工作量統計表",
-  "short_name": "工作量統計",
+  "name": "我的工作量统计表",
+  "short_name": "我的工作量",
   "description": "每日工作量與收入統計工具，可安裝到主畫面使用。",
   "start_url": "./index.html",
   "scope": "./",
